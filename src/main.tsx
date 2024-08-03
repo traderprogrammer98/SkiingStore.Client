@@ -1,21 +1,10 @@
 import React from "react"
 import ReactDOM from "react-dom/client"
-import App from "./app/layout/App.tsx"
-import "normalize.css"
-import { ConfigProvider } from "antd"
+import { RouterProvider } from "react-router-dom"
+import { router } from "./app/router/Routes.tsx"
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <ConfigProvider
-      theme={{
-        components: {
-          Layout: {
-            headerBg: "#2e58ff",
-          },
-        },
-      }}
-    >
-      <App />
-    </ConfigProvider>
+    <RouterProvider router={router} />
   </React.StrictMode>
 )

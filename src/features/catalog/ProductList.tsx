@@ -1,15 +1,18 @@
+import { Grid } from "@mui/material"
 import { Product } from "../../app/models/product"
-import { List, Avatar } from "antd"
 import ProductCard from "./ProductCard"
 interface Props {
   products: Product[]
 }
 const ProductList = ({ products }: Props) => {
   return (
-    <List
-      dataSource={products}
-      renderItem={(product) => <ProductCard product={product} />}
-    />
+    <Grid container spacing={4}>
+      {products.map((product) => (
+        <Grid item xs={3}>
+          <ProductCard product={product} key={product.id} />
+        </Grid>
+      ))}
+    </Grid>
   )
 }
 

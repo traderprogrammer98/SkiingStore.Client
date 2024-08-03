@@ -1,22 +1,35 @@
-import { Fragment, useEffect, useState } from "react"
-import Catalog from "../../features/catalog/Catalog"
-import { Product } from "../models/product"
-import SiteLayout from "./SiteHeader"
+import { useState } from "react"
+import Header from "./Header"
+import {
+  Container,
+  createTheme,
+  CssBaseline,
+  ThemeProvider,
+} from "@mui/material"
+import { Outlet } from "react-router-dom"
 
 function App() {
-  const [products, setProducts] = useState<Product[]>([])
-  useEffect(() => {
-    fetch("https://localhost:7190/api/Products")
-      .then((res) => res.json())
-      .then((data) => {
-        setProducts(data), console.log(data)
-      })
-  }, [])
+  const [darkMode, setDarkMode] = useState(false)
+  const paletteType = darkMode ? "dark" : "light"
+  const theme = createTheme({
+    palette: {
+      mode: paletteType,
+      background: {
+        default: paletteType === "light" ? "#eaeaea" : "#12",
+      },
+    },
+  })
+  const handleThemeChange = () => {
+    setDarkMode(!darkMode)
+  }
   return (
-    <Fragment>
-      <SiteLayout />
-      <Catalog products={products} addProducts={() => {}} />
-    </Fragment>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Header darkMode={darkMode} handleThemeChange={handleThemeChange} />
+      <Container>
+        <Outlet />
+      </Container>
+    </ThemeProvider>
   )
 }
 
