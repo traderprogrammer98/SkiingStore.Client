@@ -9,6 +9,7 @@ import {
 import { Outlet } from "react-router-dom"
 import { ToastContainer } from "react-toastify"
 import "react-toastify/ReactToastify.css"
+import agent from "../api/agent"
 
 function App() {
   const [darkMode, setDarkMode] = useState(false)
@@ -24,6 +25,7 @@ function App() {
   const handleThemeChange = () => {
     setDarkMode(!darkMode)
   }
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />

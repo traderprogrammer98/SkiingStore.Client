@@ -12,6 +12,7 @@ import {
   Typography,
 } from "@mui/material"
 import agent from "../../app/api/agent"
+import LoadingComponent from "../../app/layout/LoadingComponent"
 
 const ProductDetails = () => {
   const { id } = useParams<{ id: string }>()
@@ -24,7 +25,7 @@ const ProductDetails = () => {
         .catch((error) => console.log(error))
         .finally(() => setLoading(false))
   }, [id])
-  if (loading) return <h3>Loading...</h3>
+  if (loading) return <LoadingComponent />
   if (!product) return <h3>product not found</h3>
   return (
     <Grid container spacing={6}>

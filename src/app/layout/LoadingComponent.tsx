@@ -1,11 +1,10 @@
 import { Backdrop, Box, CircularProgress, Typography } from "@mui/material";
 interface Props {
-  messsage?: string;
+  message?: string;
 }
-
-const LoadingComponent = ({ messsage = "Loading..." }: Props) => {
+const LoadingComponent = ({ message = "Loading ..." }: Props) => {
   return (
-    <Backdrop open={true} invisible>
+    <Backdrop open={true} invisible={true}>
       <Box
         display={"flex"}
         justifyContent={"center"}
@@ -17,7 +16,7 @@ const LoadingComponent = ({ messsage = "Loading..." }: Props) => {
           variant="h4"
           sx={{ justifyContent: "center", position: "fixed", top: "60%" }}
         >
-          {messsage}
+          {message}
         </Typography>
       </Box>
     </Backdrop>
