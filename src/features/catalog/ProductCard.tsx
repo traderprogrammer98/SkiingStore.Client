@@ -7,23 +7,26 @@ import {
   Button,
   CardHeader,
   Avatar,
-} from "@mui/material";
-import { Product } from "../../app/models/product";
-import { NavLink } from "react-router-dom";
-import { useState } from "react";
-import agent from "../../app/api/agent";
-import { LoadingButton } from "@mui/lab";
+} from "@mui/material"
+import { Product } from "../../app/models/product"
+import { NavLink } from "react-router-dom"
+import { useState } from "react"
+import agent from "../../app/api/agent"
+import { LoadingButton } from "@mui/lab"
+import { useStoreContext } from "../../app/context/StoreContext"
 interface Props {
-  product: Product;
+  product: Product
 }
 const ProductCard = ({ product }: Props) => {
-  const [loading, setLoading] = useState(false);
+  const { setBasket } = useStoreContext()
+  const [loading, setLoading] = useState(false)
   const handleAddItem = (productId: number) => {
-    setLoading(true);
+    setLoading(true)
     agent.Basket.addItem(productId)
+      .then((basket) => setBasket(basket))
       .catch((error) => console.log(error))
-      .finally(() => setLoading(false));
-  };
+      .finally(() => setLoading(false))
+  }
 
   return (
     <Card>
@@ -71,7 +74,7 @@ const ProductCard = ({ product }: Props) => {
         </Button>
       </CardActions>
     </Card>
-  );
-};
+  )
+}
 
-export default ProductCard;
+export default ProductCard

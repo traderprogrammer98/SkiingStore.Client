@@ -9,22 +9,40 @@ import {
   TableCell,
   TableContainer,
   TableRow,
+  TextField,
   Typography,
 } from "@mui/material"
 import agent from "../../app/api/agent"
 import LoadingComponent from "../../app/layout/LoadingComponent"
+import { useStoreContext } from "../../app/context/StoreContext"
+import { LoadingButton } from "@mui/lab"
 
 const ProductDetails = () => {
+  const { basket } = useStoreContext()
   const { id } = useParams<{ id: string }>()
   const [product, setProduct] = useState<Product | null>(null)
   const [loading, setLoading] = useState(true)
+  const [quantity, setQuantity] = useState(0)
+  const [submitting, setSubmitting] = useState(false)
+  const item = basket?.basketItems.find(
+    (item) => item.productId === product?.id
+  )
+  const handleInputChange = (event: any) => {
+    if (parseInt(event.target.value) > 0) {
+      setQuantity(parseInt(event.target.value))
+    }
+  }
   useEffect(() => {
+    if (item) {
+      setQuantity(item.quantity)
+    }
     id &&
       agent.Catelog.details(parseInt(id))
         .then((response) => setProduct(response))
         .catch((error) => console.log(error))
         .finally(() => setLoading(false))
-  }, [id])
+  }, [id, item])
+
   if (loading) return <LoadingComponent />
   if (!product) return <h3>product not found</h3>
   return (
@@ -69,6 +87,29 @@ const ProductDetails = () => {
             </TableBody>
           </Table>
         </TableContainer>
+        <Grid container spacing={2}>
+          <Grid item xs={6}>
+            <TextField
+              onChange={handleInputChange}
+              variant="outlined"
+              type="number"
+              label="quantity in cart"
+              fullWidth
+              value={quantity}
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <LoadingButton
+              sx={{ height: "55px" }}
+              color="primary"
+              size="large"
+              variant="outlined"
+              fullWidth
+            >
+              {item ? "Update quantity" : "Add to cart"}
+            </LoadingButton>
+          </Grid>
+        </Grid>
       </Grid>
     </Grid>
   )
