@@ -14,11 +14,11 @@ import {
 } from "@mui/material"
 import agent from "../../app/api/agent"
 import LoadingComponent from "../../app/layout/LoadingComponent"
-import { useStoreContext } from "../../app/context/StoreContext"
 import { LoadingButton } from "@mui/lab"
+import { useAppSelector } from "../../app/store/configureStore"
 
 const ProductDetails = () => {
-  const { basket } = useStoreContext()
+  const { basket } = useAppSelector((state) => state.basket)
   const { id } = useParams<{ id: string }>()
   const [product, setProduct] = useState<Product | null>(null)
   const [loading, setLoading] = useState(true)

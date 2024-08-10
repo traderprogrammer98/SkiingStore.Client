@@ -1,18 +1,18 @@
-import { Fragment, useEffect, useState } from "react"
-import { Product } from "../../app/models/product"
+import { Fragment, useEffect } from "react"
 import ProductList from "./ProductList"
-import agent from "../../app/api/agent"
 import LoadingComponent from "../../app/layout/LoadingComponent"
+import { useAppDispatch, useAppSelector } from "../../app/store/configureStore"
+import { fetchProductsAsync, productSelectors } from "./catelogSlice"
 const Catalog = () => {
-  const [products, setProducts] = useState<Product[]>([])
-  const [loading, setLoading] = useState(true)
+  const dispatch = useAppDispatch()
+  const { status, productsLoades } = useAppSelector((state) => state.catelog)
+  const products = useAppSelector(productSelectors.selectAll)
   useEffect(() => {
-    agent.Catelog.list()
-      .then((products) => setProducts(products))
-      .catch((error) => console.log(error))
-      .finally(() => setLoading(false))
+    if (!productsLoades) {
+      dispatch(fetchProductsAsync())
+    }
   }, [])
-  if (loading) return <LoadingComponent />
+  if (status.includes("pending")) return <LoadingComponent />
   return (
     <Fragment>
       <ProductList products={products} />

@@ -11,50 +11,17 @@ import {
   Typography,
 } from "@mui/material"
 import DeleteIcon from "@mui/icons-material/Delete"
-import { useStoreContext } from "../../app/context/StoreContext"
 import { Add, Remove } from "@mui/icons-material"
-import { useState } from "react"
-import agent from "../../app/api/agent"
 import { LoadingButton } from "@mui/lab"
 import BasketSummary from "./BasketSummary"
 import { currencyFormat } from "../../app/utils/utils"
+import { useAppDispatch, useAppSelector } from "../../app/store/configureStore"
+import { addBasketItemAsync, removeBasketItemAsync } from "./basketSlice"
 
 const BasketPage = () => {
-  const { basket, setBasket } = useStoreContext()
-  const [status, setStatus] = useState({
-    loading: false,
-    name: "",
-  })
-  const handleAddItem = (productId: number) => {
-    setStatus({
-      loading: true,
-      name: "add" + productId.toString(),
-    })
-    agent.Basket.addItem(productId)
-      .then((basket) => setBasket(basket))
-      .catch((error) => console.log(error))
-      .finally(() =>
-        setStatus({
-          loading: false,
-          name: "",
-        })
-      )
-  }
-  const handleRemove = (productId: number, quantity = 1, name = "removeQ") => {
-    setStatus({
-      loading: true,
-      name: name + productId.toString(),
-    })
-    agent.Basket.removeItem(productId, quantity)
-      .then((basket) => setBasket(basket))
-      .catch((error) => console.log(error))
-      .finally(() =>
-        setStatus({
-          loading: false,
-          name: "",
-        })
-      )
-  }
+  const dispatch = useAppDispatch()
+  const { basket, status } = useAppSelector((state) => state.basket)
+
   if (!basket?.basketItems.length)
     return (
       <Typography variant="h2" color={"secondary"}>
@@ -96,22 +63,30 @@ const BasketPage = () => {
                 <TableCell align="right">
                   <LoadingButton
                     color="error"
-                    loading={
-                      status.loading &&
-                      status.name === "removeQ" + item.productId.toString()
+                    loading={status.includes("pending" + item.productId)}
+                    onClick={() =>
+                      dispatch(
+                        removeBasketItemAsync({
+                          productId: item.productId,
+                          quantity: 1,
+                        })
+                      )
                     }
-                    onClick={() => handleRemove(item.productId)}
                   >
                     <Remove />
                   </LoadingButton>
                   {item.quantity}
                   <LoadingButton
                     color="success"
-                    loading={
-                      status.loading &&
-                      status.name === "add" + item.productId.toString()
+                    loading={status.includes("pending" + item.productId)}
+                    onClick={() =>
+                      dispatch(
+                        addBasketItemAsync({
+                          productId: item.productId,
+                          quantity: 1,
+                        })
+                      )
                     }
-                    onClick={() => handleAddItem(item.productId)}
                   >
                     <Add />
                   </LoadingButton>
@@ -124,12 +99,14 @@ const BasketPage = () => {
                     aria-label="delete"
                     size="small"
                     color="error"
-                    loading={
-                      status.loading &&
-                      status.name === "removeP" + item.productId.toString()
-                    }
+                    loading={status.includes("pending" + item.productId)}
                     onClick={() =>
-                      handleRemove(item.productId, item.quantity, "removeP")
+                      dispatch(
+                        removeBasketItemAsync({
+                          productId: item.productId,
+                          quantity: item.quantity,
+                        })
+                      )
                     }
                   >
                     <DeleteIcon fontSize="medium" />
