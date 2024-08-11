@@ -1,6 +1,5 @@
-import { useEffect, useState } from "react"
-import { useParams } from "react-router-dom"
-import { Product } from "../../app/models/product"
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import {
   Divider,
   Grid,
@@ -11,40 +10,38 @@ import {
   TableRow,
   TextField,
   Typography,
-} from "@mui/material"
-import agent from "../../app/api/agent"
-import LoadingComponent from "../../app/layout/LoadingComponent"
-import { LoadingButton } from "@mui/lab"
-import { useAppSelector } from "../../app/store/configureStore"
+} from "@mui/material";
+import LoadingComponent from "../../app/layout/LoadingComponent";
+import { LoadingButton } from "@mui/lab";
+import { useAppDispatch, useAppSelector } from "../../app/store/configureStore";
+import { fetchProductAsync, productSelectors } from "./catelogSlice";
 
 const ProductDetails = () => {
-  const { basket } = useAppSelector((state) => state.basket)
-  const { id } = useParams<{ id: string }>()
-  const [product, setProduct] = useState<Product | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [quantity, setQuantity] = useState(0)
-  const [submitting, setSubmitting] = useState(false)
+  const { basket, status } = useAppSelector((state) => state.basket);
+  const dispatch = useAppDispatch();
+  const { id } = useParams<{ id: string }>();
+  const product = useAppSelector((state) =>
+    productSelectors.selectById(state, Number(id))
+  );
+  const { status: productStatus } = useAppSelector((state) => state.catelog);
+  const [quantity, setQuantity] = useState(0);
   const item = basket?.basketItems.find(
     (item) => item.productId === product?.id
-  )
+  );
   const handleInputChange = (event: any) => {
     if (parseInt(event.target.value) > 0) {
-      setQuantity(parseInt(event.target.value))
+      setQuantity(parseInt(event.target.value));
     }
-  }
+  };
   useEffect(() => {
     if (item) {
-      setQuantity(item.quantity)
+      setQuantity(item.quantity);
     }
-    id &&
-      agent.Catelog.details(parseInt(id))
-        .then((response) => setProduct(response))
-        .catch((error) => console.log(error))
-        .finally(() => setLoading(false))
-  }, [id, item])
+    if (!product) dispatch(fetchProductAsync(Number(id)));
+  }, [id, item, product, dispatch]);
 
-  if (loading) return <LoadingComponent />
-  if (!product) return <h3>product not found</h3>
+  if (productStatus.includes("pending")) return <LoadingComponent />;
+  if (!product) return <h3>product not found</h3>;
   return (
     <Grid container spacing={6}>
       <Grid item xs={6}>
@@ -112,7 +109,7 @@ const ProductDetails = () => {
         </Grid>
       </Grid>
     </Grid>
-  )
-}
+  );
+};
 
-export default ProductDetails
+export default ProductDetails;
