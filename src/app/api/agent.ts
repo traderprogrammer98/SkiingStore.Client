@@ -1,49 +1,58 @@
-import axios, { AxiosError, AxiosResponse } from "axios"
-import { toast } from "react-toastify"
-import { router } from "../router/Routes"
+import axios, { AxiosError, AxiosResponse } from "axios";
+import { toast } from "react-toastify";
+import { router } from "../router/Routes";
+import { PaginatedResponse } from "../models/pagination";
 
-axios.defaults.baseURL = "https://localhost:7190/api/"
-axios.defaults.withCredentials = true
+axios.defaults.baseURL = "https://localhost:7190/api/";
+axios.defaults.withCredentials = true;
 
-const responseBody = (response: AxiosResponse) => response.data
+const responseBody = (response: AxiosResponse) => response.data;
 
-const sleep = () => new Promise((resolve) => setTimeout(resolve, 1000))
+const sleep = () => new Promise((resolve) => setTimeout(resolve, 1000));
 
 axios.interceptors.response.use(
   async (response) => {
-    await sleep()
-    return response
+    await sleep();
+    const pagination = response.headers["pagination"];
+    if (pagination) {
+      response.data = new PaginatedResponse(
+        response.data,
+        JSON.parse(pagination)
+      );
+      return response;
+    }
+    return response;
   },
   (error: AxiosError) => {
-    console.log(error.response)
-    const { data, status } = error.response as AxiosResponse
+    console.log(error.response);
+    const { data, status } = error.response as AxiosResponse;
     switch (status) {
       case 400:
         if (data.errors) {
-          const modelStateErrors: string[] = []
+          const modelStateErrors: string[] = [];
           for (const key in data.errors) {
-            modelStateErrors.push(data.errors[key])
+            modelStateErrors.push(data.errors[key]);
           }
-          throw modelStateErrors.flat()
+          throw modelStateErrors.flat();
         }
-        toast.error(data.title)
-        break
+        toast.error(data.title);
+        break;
       case 401:
-        toast.error(data.title)
-        break
+        toast.error(data.title);
+        break;
       case 404:
-        router.navigate("/not-found", { state: { error: data } })
-        break
+        router.navigate("/not-found", { state: { error: data } });
+        break;
       case 500:
-        router.navigate("/server-error", { state: { error: data } })
-        break
+        router.navigate("/server-error", { state: { error: data } });
+        break;
       default:
-        toast.error(data.title)
-        break
+        toast.error(data.title);
+        break;
     }
-    return Promise.reject(error.response)
+    return Promise.reject(error.response);
   }
-)
+);
 
 const request = {
   get: (url: string, params?: URLSearchParams) =>
@@ -51,13 +60,13 @@ const request = {
   post: (url: string, body: {}) => axios.post(url, body).then(responseBody),
   put: (url: string, body: {}) => axios.put(url, body).then(responseBody),
   delete: (url: string) => axios.delete(url).then(responseBody),
-}
+};
 
 const Catelog = {
   list: (params: URLSearchParams) => request.get("Products", params),
   details: (id: number) => request.get(`Products/${id}`),
   fetchFilters: () => request.get("Products/filters"),
-}
+};
 
 const TestErrors = {
   get400Error: () => request.get("Buggy/bad-request"),
@@ -65,7 +74,7 @@ const TestErrors = {
   get404Error: () => request.get("Buggy/not-found"),
   get500Error: () => request.get("Buggy/server-error"),
   getvalidationError: () => request.get("Buggy/validation-error"),
-}
+};
 
 const Basket = {
   get: () => request.get("Basket"),
@@ -73,12 +82,12 @@ const Basket = {
     request.post(`Basket?productId=${productId}&quantity=${quantity}`, {}),
   removeItem: (productId: number, quantity = 1) =>
     request.delete(`Basket?productId=${productId}&quantity=${quantity}`),
-}
+};
 
 const agent = {
   Catelog,
   TestErrors,
   Basket,
-}
+};
 
-export default agent
+export default agent;
