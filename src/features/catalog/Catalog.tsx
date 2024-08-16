@@ -6,21 +6,14 @@ import {
   fetchFiltersAsync,
   fetchProductsAsync,
   productSelectors,
+  setPageNumber,
   setProductParams,
 } from "./catelogSlice";
-import {
-  Box,
-  Checkbox,
-  FormControlLabel,
-  FormGroup,
-  Grid,
-  Pagination,
-  Paper,
-  Typography,
-} from "@mui/material";
+import { Grid, Paper } from "@mui/material";
 import ProductSearch from "./ProductSearch";
 import RadioButtonGroup from "../../app/components/RadioButtonGroup";
 import CheckBoxGroup from "../../app/components/CheckBoxGroup";
+import AppPagination from "../../app/components/AppPagination";
 const sortOptions = [
   { value: "name", label: "Alphabetical" },
   { value: "price", label: "Price - Low to High" },
@@ -29,12 +22,12 @@ const sortOptions = [
 const Catalog = () => {
   const dispatch = useAppDispatch();
   const {
-    status,
     productsLoaded,
     filtersLoaded,
     brands,
     types,
     productParams,
+    metaData,
   } = useAppSelector((state) => state.catelog);
   const products = useAppSelector(productSelectors.selectAll);
   const [value, setValue] = useState("name");
@@ -48,7 +41,7 @@ const Catalog = () => {
       dispatch(fetchFiltersAsync());
     }
   }, [filtersLoaded, dispatch]);
-  if (status.includes("pending")) return <LoadingComponent />;
+  if (!filtersLoaded) return <LoadingComponent />;
   return (
     <Grid container spacing={4}>
       <Grid item xs={3}>
@@ -88,7 +81,16 @@ const Catalog = () => {
         <ProductList products={products} />
       </Grid>
       <Grid item xs={3} />
-      <Grid item xs={9}></Grid>
+      <Grid item xs={9}>
+        {metaData && (
+          <AppPagination
+            metaData={metaData}
+            onPageClick={(page) =>
+              dispatch(setPageNumber({ pageNumber: page }))
+            }
+          />
+        )}
+      </Grid>
     </Grid>
   );
 };

@@ -4,11 +4,23 @@ interface Props {
   metaData: MetaData;
   onPageClick: (page: number) => void;
 }
-const AppPagination = () => {
+const AppPagination = ({ metaData, onPageClick }: Props) => {
+  const { currentPage, pageSize, totalPages, totalCount } = metaData;
   return (
     <Box display={"flex"} justifyContent={"space-between"}>
-      <Typography>show 6 items from 20</Typography>
-      <Pagination count={10} color="secondary" />
+      <Typography>
+        Display {(currentPage - 1) * pageSize + 1} -{" "}
+        {currentPage * pageSize > totalCount
+          ? totalCount
+          : currentPage * pageSize}{" "}
+        of {totalCount}
+      </Typography>
+      <Pagination
+        count={totalPages}
+        page={currentPage}
+        color="secondary"
+        onChange={(_, page) => onPageClick(page)}
+      />
     </Box>
   );
 };

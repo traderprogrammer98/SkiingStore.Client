@@ -7,19 +7,19 @@ import {
   Button,
   CardHeader,
   Avatar,
-} from "@mui/material"
-import { Product } from "../../app/models/product"
-import { NavLink } from "react-router-dom"
-import { LoadingButton } from "@mui/lab"
-import { useAppDispatch, useAppSelector } from "../../app/store/configureStore"
-import { addBasketItemAsync } from "../basket/basketSlice"
-import { currencyFormat } from "../../app/utils/utils"
+} from "@mui/material";
+import { Product } from "../../app/models/product";
+import { NavLink } from "react-router-dom";
+import { LoadingButton } from "@mui/lab";
+import { useAppDispatch, useAppSelector } from "../../app/store/configureStore";
+import { addBasketItemAsync } from "../basket/basketSlice";
+import { currencyFormat } from "../../app/utils/utils";
 interface Props {
-  product: Product
+  product: Product;
 }
 const ProductCard = ({ product }: Props) => {
-  const dispatch = useAppDispatch()
-  const { status, basket } = useAppSelector((state) => state.basket)
+  const dispatch = useAppDispatch();
+  const { status, basket } = useAppSelector((state) => state.basket);
 
   return (
     <Card>
@@ -69,7 +69,7 @@ const ProductCard = ({ product }: Props) => {
         </Button>
       </CardActions>
     </Card>
-  )
-}
+  );
+};
 
-export default ProductCard
+export default ProductCard;

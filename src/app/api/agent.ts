@@ -2,6 +2,7 @@ import axios, { AxiosError, AxiosResponse } from "axios";
 import { toast } from "react-toastify";
 import { router } from "../router/Routes";
 import { PaginatedResponse } from "../models/pagination";
+import { store } from "../store/configureStore";
 
 axios.defaults.baseURL = "https://localhost:7190/api/";
 axios.defaults.withCredentials = true;
@@ -9,6 +10,14 @@ axios.defaults.withCredentials = true;
 const responseBody = (response: AxiosResponse) => response.data;
 
 const sleep = () => new Promise((resolve) => setTimeout(resolve, 1000));
+
+axios.interceptors.request.use((config) => {
+  const token = store.getState().account.user?.token;
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
 
 axios.interceptors.response.use(
   async (response) => {
@@ -68,6 +77,13 @@ const Catelog = {
   fetchFilters: () => request.get("Products/filters"),
 };
 
+const Account = {
+  login: (values: any) => request.post("Account/Login", values),
+  register: (values: any) => request.post("Account/Register", values),
+  currentUser: () => request.get("Account/CurrentUser"),
+  fetchAddress: () => request.get("Account/SavedAddress"),
+};
+
 const TestErrors = {
   get400Error: () => request.get("Buggy/bad-request"),
   get401Error: () => request.get("Buggy/unauthorized"),
@@ -84,10 +100,18 @@ const Basket = {
     request.delete(`Basket?productId=${productId}&quantity=${quantity}`),
 };
 
+const Order = {
+  list: () => request.get("Order"),
+  fetch: (id: number) => request.get(`Order/${id}`),
+  create: (values: any) => request.post("Order", values),
+};
+
 const agent = {
   Catelog,
   TestErrors,
   Basket,
+  Account,
+  Order,
 };
 
 export default agent;
